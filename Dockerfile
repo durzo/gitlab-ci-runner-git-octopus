@@ -1,6 +1,6 @@
 FROM alpine:latest
 MAINTAINER Jordan Tomkinson <jordan@moodle.com>
-RUN apk --no-cache add bash git python python-dev py-pip py-setuptools openssh-client make perl
+RUN apk --no-cache add bash git python3 python3-dev py-pip py-setuptools openssh-client make perl
 RUN pip install --upgrade s3cmd
 RUN git clone https://github.com/lesfurets/git-octopus /tmp/git-octopus
 RUN cd /tmp/git-octopus && make install
