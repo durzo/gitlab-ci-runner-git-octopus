@@ -1,0 +1,35 @@
+FROM ubuntu:22.04 as repo-config
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gnupg2 software-properties-common \
+    && add-apt-repository -y ppa:ondrej/php
+
+######################################################################################
+FROM ubuntu:22.04
+MAINTAINER Jordan Tomkinson <jordan.tomkinson@gmail.com>
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends git python3 python3-dev python3-pip openssh-client make perl jq postgresql-client curl ca-certificates bc
+COPY --from=repo-config /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=repo-config /etc/apt/trusted.gpg.d/ondrej-ubuntu-php.gpg /etc/apt/trusted.gpg.d/ondrej-ubuntu-php.gpg
+RUN apt-get update
+
+RUN apt-get install -y --no-install-recommends php7.4-cli php7.4-common php7.4-curl php7.4-dev php7.4-gd php7.4-igbinary php7.4-imagick php7.4-intl php7.4-json php7.4-lz4 php7.4-mbstring php7.4-mcrypt php7.4-oauth php7.4-opcache php7.4-pgsql php7.4-ps php7.4-psr php7.4-readline php7.4-redis php7.4-soap php7.4-solr php7.4-xml php7.4-xmlrpc php7.4-yaml php7.4-zip php7.4-zstd
+
+RUN apt-get install -y --no-install-recommends php8.1-cli php8.1-bcmath php8.1-common php8.1-curl php8.1-gd php8.1-igbinary php8.1-intl php8.1-ldap php8.1-mbstring php8.1-mcrypt php8.1-opcache php8.1-pgsql php8.1-readline php8.1-redis php8.1-soap php8.1-xml php8.1-xmlrpc php8.1-yaml php8.1-zip
+
+RUN git clone https://github.com/lesfurets/git-octopus /tmp/git-octopus
+RUN cd /tmp/git-octopus && make install
+
+# RUN pip install --upgrade s3cmd
+# RUN echo "[default]" > ~/.s3cfg
+# RUN echo "access_key =" >> ~/.s3cfg
+# RUN echo "secret_key =" >> ~/.s3cfg
+# RUN echo "security_token =" >> ~/.s3cfg
+
+RUN mkdir ~/.ssh && chmod 700 ~/.ssh
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
